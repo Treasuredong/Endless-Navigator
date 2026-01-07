@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Endless Navigator - 演示页面</title>
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary-color: #8b5cf6;
+            --accent-color: #06b6d4;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --background-color: #0f172a;
+            --surface-color: #1e293b;
+            --surface-light: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-tertiary: #94a3b8;
+            --border-color: #475569;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .demo-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* 头部样式 */
+        .demo-header {
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .logo {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .logo-text h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.25rem;
+        }
+        
+        .logo-text p {
+            color: var(--text-tertiary);
+            font-size: 0.875rem;
+        }
+        
+        .demo-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .demo-button {
+            padding: 0.75rem 1.5rem;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .demo-button.primary {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.2);
+        }
+        
+        /* 主体内容 */
+        .demo-main {
+            padding: 2rem 0;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+        }
+        
+        /* 聊天界面 */
+        .chat-container {
+            background: var(--surface-color);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+        
+        .chat-header {
+            padding: 1.25rem 1.5rem;
+            background: var(--surface-light);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-header-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .assistant-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+        
+        .assistant-name h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+        
+        .assistant-name p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .message {
+            max-width: 80%;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message.user {
+            align-self: flex-end;
+        }
+        
+        .message.assistant {
+            align-self: flex-start;
+        }
+        
+        .message-bubble {
+            padding: 1rem 1.25rem;
+            border-radius: 18px;
+            position: relative;
+        }
+        
+        .message.user .message-bubble {
+            background: var(--primary-color);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .message.assistant .message-bubble {
+            background: var(--surface-light);
+            color: var(--text-primary);
+            border-bottom-left-radius: 4px;
+        }
+        
+        .message-content {
+            line-height: 1.6;
+        }
+        
+        .message-content h4 {
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .message-content ul {
+            margin-left: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .message-content li {
+            margin-bottom: 0.25rem;
+        }
+        
+        .quick-replies {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .quick-reply {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .quick-reply:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            background: var(--text-tertiary);
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-6px); }
+        }
+        
+        .chat-input {
+            padding: 1.25rem 1.5rem;
+            border-top: 1px solid var(--border-color);
+            background: var(--surface-light);
+        }
+        
+        .input-wrapper {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .chat-input input {
+            flex: 1;
+            padding: 0.875rem 1rem;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        
+        .chat-input input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .send-button {
+            padding: 0.875rem 1.5rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .send-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        /* 侧边栏 */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .card {
+            background: var(--surface-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .card h3 {
+            margin-bottom: 1rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .learning-progress .progress-bar {
+            height: 8px;
+            background: var(--surface-light);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+        
+        .level-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        
+        .level-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .task-item {
+            padding: 0.75rem;
+            background: var(--surface-light);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .task-name {
+            font-size: 0.875rem;
+        }
+        
+        .task-app {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .ecosystem-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+        }
+        
+        .ecosystem-app {
+            background: var(--surface-light);
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .ecosystem-app:hover {
+            background: var(--surface-color);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .app-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .app-name {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .faq-item {
+            padding: 0.75rem;
+            background: var(--surface-light);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            color: var(--text-primary);
+            border: 1px solid transparent;
+        }
+        
+        .faq-item:hover {
+            background: var(--surface-color);
+            border-color: var(--primary-color);
+        }
+        
+        /* 功能展示区 */
+        .features-section {
+            margin: 3rem 0;
+        }
+        
+        .features-section h2 {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .feature-card {
+            background: var(--surface-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: var(--primary-color);
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+        
+        /* 平台集成展示 */
+        .platforms-section {
+            margin: 3rem 0;
+        }
+        
+        .platforms-section h2 {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .platforms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .platform-card {
+            background: var(--surface-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
+        }
+        
+        .platform-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent-color);
+        }
+        
+        .platform-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .platform-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+        
+        .status-ready {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+        
+        .status-in-progress {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+        
+        .status-soon {
+            background: rgba(148, 163, 184, 0.2);
+            color: #94a3b8;
+        }
+        
+        /* 底部 */
+        .demo-footer {
+            margin-top: 3rem;
+            padding: 2rem 0;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--text-tertiary);
+            font-size: 0.875rem;
+        }
+        
+        @media (max-width: 1200px) {
+            .demo-main {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .demo-main {
+                padding: 1rem 0;
+            }
+            
+            .sidebar {
+                grid-template-columns: 1fr;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .platforms-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <!-- 头部 -->
+        <header class="demo-header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo">🤖</div>
+                    <div class="logo-text">
+                        <h1>Endless Navigator</h1>
+                        <p>全生态智能向导AI助手 - 演示页面</p>
+                    </div>
+                </div>
+                <div class="demo-controls">
+                    <button class="demo-button" id="resetDemo">重置演示</button>
+                    <button class="demo-button primary" id="autoDemo">自动演示</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主体内容 -->
+        <main class="demo-main">
+            <!-- 聊天界面 -->
+            <section class="chat-container">
+                <div class="chat-header">
+                    <div class="chat-header-info">
+                        <div class="assistant-avatar">🤖</div>
+                        <div class="assistant-name">
+                            <h3>Endless Navigator</h3>
+                            <p>你的智能生态向导 · 在线演示中</p>
+                        </div>
+                    </div>
+                    <div class="demo-controls">
+                        <span style="color: var(--success-color);">● 实时响应</span>
+                    </div>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <!-- 消息将通过JavaScript动态添加 -->
+                </div>
+                
+                <div class="chat-input">
+                    <div class="input-wrapper">
+                        <input type="text" id="messageInput" placeholder="输入你的问题... (例如：Endless是做什么的？)">
+                        <button class="send-button" id="sendButton">发送</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 侧边栏 -->
+            <aside class="sidebar">
+                <!-- 学习进度 -->
+                <div class="card learning-progress">
+                    <h3>🎯 学习进度</h3>
+                    <div class="level-info">
+                        <span>用户等级</span>
+                        <span class="level-number" id="userLevel">3/10</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 30%"></div>
+                    </div>
+                    <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                        已完成 <span id="completedTasks">2</span> 个任务，解锁了基础技能
+                    </p>
+                    <div id="taskList">
+                        <!-- 任务将通过JavaScript动态添加 -->
+                    </div>
+                </div>
+                
+                <!-- 生态应用入口 -->
+                <div class="card ecosystem-access">
+                    <h3>🚀 快速访问</h3>
+                    <div class="ecosystem-grid">
+                        <div class="ecosystem-app" data-app="wallet">
+                            <div class="app-icon">👛</div>
+                            <div class="app-name">钱包</div>
+                        </div>
+                        <div class="ecosystem-app" data-app="explorer">
+                            <div class="app-icon">🔍</div>
+                            <div class="app-name">浏览器</div>
+                        </div>
+                        <div class="ecosystem-app" data-app="luffa">
+                            <div class="app-icon">💬</div>
+                            <div class="app-name">Luffa</div>
+                        </div>
+                        <div class="ecosystem-app" data-app="bridge">
+                            <div class="app-icon">🔗</div>
+                            <div class="app-name">跨链桥</div>
+                        </div>
+                        <div class="ecosystem-app" data-app="dex">
+                            <div class="app-icon">🔄</div>
+                            <div class="app-name">DEX</div>
+                        </div>
+                        <div class="ecosystem-app" data-app="nft">
+                            <div class="app-icon">🖼️</div>
+                            <div class="app-name">NFT市场</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 常见问题 -->
+                <div class="card faq-section">
+                    <h3>❓ 常见问题</h3>
+                    <div class="faq-list" id="faqList">
+                        <!-- FAQ将通过JavaScript动态添加 -->
+                    </div>
+                </div>
+            </aside>
+        </main>
+
+        <!-- 功能展示区 -->
+        <section class="features-section">
+            <h2>✨ 核心功能展示</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📚</div>
+                    <h3>智能认知引导</h3>
+                    <p>针对新用户的三大核心问题提供系统性解答：Endless是什么、如何参与、如何使用生态产品。通过渐进式学习路径，让用户从零到精通。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3>上下文感知AI</h3>
+                    <p>根据用户所在平台（钱包、浏览器、Luffa等）提供针对性的帮助。理解用户当前操作环境，提供最相关的指导和建议。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3>跨平台同步</h3>
+                    <p>用户学习进度、对话历史、任务状态在Discord、Luffa、钱包等多个平台实时同步。无缝切换，体验一致。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎮</div>
+                    <h3>交互式教程</h3>
+                    <p>不只是文字说明，而是真正的交互式操作指导。手把手教学，实时验证操作结果，确保用户真正掌握。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>个性化学习路径</h3>
+                    <p>根据用户背景、兴趣和学习进度，动态调整教学内容。每个人都有自己的定制化学习路线。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔗</div>
+                    <h3>生态应用深度集成</h3>
+                    <p>与钱包、浏览器、DEX、NFT市场、Luffa等所有Endless生态应用无缝集成，提供一站式解决方案。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 平台集成展示 -->
+        <section class="platforms-section">
+            <h2>🌐 多平台集成展示</h2>
+            <div class="platforms-grid">
+                <div class="platform-card">
+                    <div class="platform-icon">💬</div>
+                    <h3>Discord社区</h3>
+                    <p>作为机器人集成到Discord，为社区成员提供7x24小时支持，自动回答常见问题，引导新成员。</p>
+                    <span class="platform-status status-ready">已就绪</span>
+                </div>
+                <div class="platform-card">
+                    <div class="platform-icon">👛</div>
+                    <h3>Endless钱包</h3>
+                    <p>内置到钱包界面，提供交易指导、安全提醒、资产操作帮助，降低钱包使用门槛。</p>
+                    <span class="platform-status status-in-progress">集成中</span>
+                </div>
+                <div class="platform-card">
+                    <div class="platform-icon">🔍</div>
+                    <h3>区块链浏览器</h3>
+                    <p>作为浏览器扩展，提供地址分析、交易解释、合约解读等高级功能，让链上数据更易懂。</p>
+                    <span class="platform-status status-in-progress">开发中</span>
+                </div>
+                <div class="platform-card">
+                    <div class="platform-icon">🌐</div>
+                    <h3>官网与文档</h3>
+                    <p>网站悬浮助手，智能搜索文档，根据用户问题精准定位相关文档，提升文档使用效率。</p>
+                    <span class="platform-status status-ready">已就绪</span>
+                </div>
+                <div class="platform-card">
+                    <div class="platform-icon">📱</div>
+                    <h3>Luffa小程序</h3>
+                    <p>嵌入Luffa社交应用，提供社交上下文感知的帮助，指导用户使用SocialFi功能。</p>
+                    <span class="platform-status status-soon">即将推出</span>
+                </div>
+                <div class="platform-card">
+                    <div class="platform-icon">🤝</div>
+                    <h3>开发者工具</h3>
+                    <p>为开发者提供智能合约指导、API文档搜索、调试帮助等专业支持，降低开发门槛。</p>
+                    <span class="platform-status status-soon">规划中</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 底部 -->
+        <footer class="demo-footer">
+            <p>Endless Navigator 演示页面 · 提案版本 1.0 · 设计用于Endless生态系统创意提案竞赛</p>
+            <p style="margin-top: 0.5rem;">这是一个功能演示，展示了Endless Navigator的核心概念和用户界面。实际实现将包括完整的AI后端、智能合约和多平台集成。</p>
+        </footer>
+    </div>
+
+    <script>
+        // 演示数据
+        const demoData = {
+            userLevel: 3,
+            completedTasks: 2,
+            totalTasks: 10,
+            tasks: [
+                { id: 1, name: '了解Endless核心概念', app: '学习', completed: true },
+                { id: 2, name: '创建Endless钱包', app: '钱包', completed: true },
+                { id: 3, name: '跨链资产到Endless', app: '跨链桥', completed: false },
+                { id: 4, name: '设置Luffa个人资料', app: 'Luffa', completed: false },
+                { id: 5, name: '参与首次流动性挖矿', app: 'DEX', completed: false }
+            ],
+            faqs: [
+                'Endless解决了Web3的什么问题？',
+                '如何免费获得EDS代币？',
+                'Luffa和微信有什么不同？',
+                'Endless钱包安全吗？',
+                '如何参与社区治理？',
+                'Endless有手机App吗？'
+            ],
+            messages: [
+                {
+                    id: 1,
+                    type: 'assistant',
+                    content: `👋 你好！我是Endless Navigator，你的智能生态向导！
+
+我会帮助你：
+1. 📚 **了解Endless** - 解释Endless是什么，解决了Web3什么核心问题
+2. 🚀 **参与社区** - 指导你如何参与Endless生态建设
+3. 🛠️ **使用产品** - 一步步教你使用钱包、Luffa、DEX等所有生态产品
+4. 🔄 **跨链操作** - 指导你将资产跨链到Endless链
+
+你现在想了解什么？或者可以直接问我具体问题！`,
+                    quickReplies: [
+                        'Endless是做什么的？',
+                        '如何将ETH跨链到Endless？',
+                        '教我使用Endless钱包',
+                        '我想参与社区治理'
+                    ]
+                }
+            ]
+        };
+
+        // DOM元素
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const resetButton = document.getElementById('resetDemo');
+        const autoDemoButton = document.getElementById('autoDemo');
+        const userLevelElement = document.getElementById('userLevel');
+        const progressFill = document.getElementById('progressFill');
+        const completedTasksElement = document.getElementById('completedTasks');
+        const taskList = document.getElementById('taskList');
+        const faqList = document.getElementById('faqList');
+
+        // 初始化
+        function initDemo() {
+            // 加载初始消息
+            renderMessages();
+            
+            // 加载学习进度
+            updateLearningProgress();
+            
+            // 加载任务列表
+            renderTaskList();
+            
+            // 加载FAQ
+            renderFAQList();
+            
+            // 绑定事件
+            bindEvents();
+        }
+
+        // 渲染消息
+        function renderMessages() {
+            chatMessages.innerHTML = '';
+            demoData.messages.forEach(msg => {
+                addMessageToChat(msg.type, msg.content, msg.quickReplies);
+            });
+            scrollToBottom();
+        }
+
+        // 添加消息到聊天界面
+        function addMessageToChat(type, content, quickReplies = null) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = 'message-bubble';
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.innerHTML = content.replace(/\n/g, '<br>');
+            
+            bubbleDiv.appendChild(contentDiv);
+            
+            // 添加快速回复按钮
+            if (quickReplies && quickReplies.length > 0) {
+                const quickRepliesDiv = document.createElement('div');
+                quickRepliesDiv.className = 'quick-replies';
+                
+                quickReplies.forEach(reply => {
+                    const button = document.createElement('button');
+                    button.className = 'quick-reply';
+                    button.textContent = reply;
+                    button.addEventListener('click', () => {
+                        sendQuickReply(reply);
+                    });
+                    quickRepliesDiv.appendChild(button);
+                });
+                
+                bubbleDiv.appendChild(quickRepliesDiv);
+            }
+            
+            messageDiv.appendChild(bubbleDiv);
+            chatMessages.appendChild(messageDiv);
+        }
+
+        // 更新学习进度
+        function updateLearningProgress() {
+            const progress = (demoData.userLevel / 10) * 100;
+            userLevelElement.textContent = `${demoData.userLevel}/10`;
+            progressFill.style.width = `${progress}%`;
+            completedTasksElement.textContent = demoData.completedTasks;
+        }
+
+        // 渲染任务列表
+        function renderTaskList() {
+            taskList.innerHTML = '';
+            demoData.tasks.forEach(task => {
+                const taskDiv = document.createElement('div');
+                taskDiv.className = 'task-item';
+                taskDiv.innerHTML = `
+                    <span class="task-name">${task.name}</span>
+                    <span class="task-app">${task.app}</span>
+                `;
+                if (task.completed) {
+                    taskDiv.style.opacity = '0.6';
+                }
+                taskList.appendChild(taskDiv);
+            });
+        }
+
+        // 渲染FAQ列表
+        function renderFAQList() {
+            faqList.innerHTML = '';
+            demoData.faqs.forEach(faq => {
+                const button = document.createElement('button');
+                button.className = 'faq-item';
+                button.textContent = faq;
+                button.addEventListener('click', () => {
+                    sendQuickReply(faq);
+                });
+                faqList.appendChild(button);
+            });
+        }
+
+        // 发送快速回复
+        function sendQuickReply(text) {
+            // 添加用户消息
+            addMessageToChat('user', text);
+            
+            // 模拟AI思考
+            showTypingIndicator();
+            
+            // 模拟AI回复
+            setTimeout(() => {
+                removeTypingIndicator();
+                const response = getAIResponse(text);
+                addMessageToChat('assistant', response.answer, response.quickReplies);
+                
+                // 如果是特定操作，更新学习进度
+                if (response.updatesProgress) {
+                    updateUserProgress();
+                }
+                
+                scrollToBottom();
+            }, 1000);
+        }
+
+        // 获取AI回复（模拟）
+        function getAIResponse(question) {
+            const responses = {
+                'Endless是做什么的': {
+                    answer: `**Endless Web3 Genesis Cloud** 是全球首个分布式云智能组件协议，它解决了Web3生态的三大核心问题：
+
+**🔧 技术门槛高**
+- 传统Web3开发需要学习Solidity等新语言
+- Endless提供多语言SDK，让Web2开发者无缝迁移
+- 模块化组件，像搭积木一样构建DApp
+
+**🛡️ 安全与隐私缺失**
+- 传统Web3应用常忽视用户隐私
+- Endless采用零知识证明、端到端加密
+- 用户完全掌控自己的数据和资产
+
+**🌉 用户体验割裂**
+- 钱包、DApp、跨链操作复杂
+- Endless提供无缝的统一体验
+- 支持无密钥登录、赞助交易等
+
+**简单来说，Endless让Web3变得像Web2一样简单易用，同时保持了去中心化和安全的优势！**`,
+                    quickReplies: [
+                        '听起来很棒！怎么开始使用？',
+                        '能举个例子说明吗？',
+                        'Endless和其他公链有什么不同？'
+                    ],
+                    updatesProgress: true
+                },
+                
+                '如何将ETH跨链到Endless': {
+                    answer: `**将ETH跨链到Endless链的完整教程**：
+
+**步骤1: 准备工作**
+1. 安装并设置好Endless钱包
+2. 确保你的以太坊钱包有少量ETH作为Gas费
+3. 准备好要跨链的ETH
+
+**步骤2: 访问跨链桥**
+1. 打开 [Endless Bridge](https://bridge.endless.link)
+2. 连接你的以太坊钱包和Endless钱包
+3. 选择"从以太坊到Endless"的方向
+
+**步骤3: 执行跨链**
+1. 输入要跨链的ETH数量
+2. 确认跨链费用（通常0.1-0.3%）
+3. 在以太坊钱包中确认交易
+4. 等待约5-15分钟确认时间
+
+**步骤4: 验证到账**
+1. 交易确认后，ETH会自动转换为WETH（Endless链上的包装ETH）
+2. 在Endless钱包中查看WETH余额
+3. 可以立即在Endless DEX中交易或使用
+
+💡 **小贴士**：
+- 首次跨链建议先小额测试
+- 跨链期间不要关闭页面
+- 有问题可以随时联系社区支持
+
+**需要我一步步指导你操作吗？**`,
+                    quickReplies: [
+                        '是的，请指导我操作',
+                        '跨链费用是多少？',
+                        '什么是WETH？'
+                    ],
+                    updatesProgress: true
+                },
+                
+                '教我使用Endless钱包': {
+                    answer: `**Endless钱包使用全指南** 📱
+
+**✨ 主要功能**：
+1. **资产管理** - 查看余额、发送接收代币
+2. **DeFi集成** - 直接在钱包中参与流动性挖矿
+3. **NFT管理** - 查看、发送、展示你的NFT
+4. **DApp连接** - 一键连接Endless生态所有应用
+5. **社交恢复** - 通过好友网络恢复账户（可选）
+
+**📝 基础操作**：
+
+**1. 发送代币**
+1. 点击"发送"按钮
+2. 输入接收地址或扫描二维码
+3. 输入金额，选择代币类型
+4. 确认Gas费并发送
+
+**2. 接收代币**
+1. 点击"接收"按钮
+2. 分享你的地址或二维码
+3. 也可以直接复制地址发给对方
+
+**3. 连接DApp**
+1. 访问任意Endless生态DApp
+2. 点击"连接钱包"
+3. 选择Endless钱包并授权
+4. 完成！现在可以在DApp中操作了
+
+**4. 查看交易记录**
+1. 进入"交易历史"标签
+2. 查看所有进出记录
+3. 点击任意交易查看详情
+
+**🎯 高级功能**（等你熟悉基础后再探索）：
+- 多签钱包设置
+- 自动化投资策略
+- 跨链资产管理
+
+**需要我演示具体操作吗？**`,
+                    quickReplies: [
+                        '演示发送代币',
+                        '如何连接Luffa？',
+                        '钱包安全设置'
+                    ],
+                    updatesProgress: true
+                },
+                
+                '我想参与社区治理': {
+                    answer: `**参与Endless社区治理的完整指南** 🏛️
+
+Endless采用去中心化治理模型，每个EDS持有者都可以参与决策：
+
+**1. 治理参与方式**
+- **提案投票**：对生态发展提案进行投票
+- **治理讨论**：在论坛和Discord参与讨论
+- **委托投票**：将投票权委托给信任的代表
+- **成为代表**：积累声誉后成为社区代表
+
+**2. 如何开始参与**
+
+**步骤1: 持有EDS代币**
+- 通过DEX购买EDS
+- 参与流动性挖矿获得EDS奖励
+- 参与社区活动获得空投
+
+**步骤2: 质押EDS**
+- 将EDS质押到治理合约
+- 获得治理权权重
+- 同时获得质押奖励
+
+**步骤3: 参与讨论**
+- 加入 [Endless论坛](https://forum.endless.link)
+- 参与Discord治理频道
+- 了解当前提案和讨论话题
+
+**步骤4: 投票决策**
+- 浏览当前活跃提案
+- 研究提案内容和影响
+- 使用钱包进行投票
+
+**3. 治理奖励**
+- 参与投票获得治理奖励
+- 优质提案获得资助
+- 活跃贡献者获得社区认可
+
+**准备好开始你的治理之旅了吗？**`,
+                    quickReplies: [
+                        '如何购买EDS？',
+                        '质押收益率是多少？',
+                        '查看当前提案'
+                    ],
+                    updatesProgress: true
+                }
+            };
+            
+            // 简单的问题匹配
+            for (const [key, response] of Object.entries(responses)) {
+                if (question.includes(key) || key.includes(question)) {
+                    return response;
+                }
+            }
+            
+            // 默认回答
+            return {
+                answer: `我理解你想了解"${question}"，但我需要更多信息来提供准确回答。
+
+你可以：
+1. 重新表述你的问题
+2. 从下面的快速选项中选择
+3. 告诉我你想完成什么具体任务
+
+我会尽我所能帮助你！`,
+                quickReplies: demoData.messages[0].quickReplies
+            };
+        }
+
+        // 更新用户进度
+        function updateUserProgress() {
+            if (demoData.userLevel < 10) {
+                demoData.userLevel++;
+                demoData.completedTasks++;
+                
+                // 标记一个任务为已完成
+                const pendingTask = demoData.tasks.find(task => !task.completed);
+                if (pendingTask) {
+                    pendingTask.completed = true;
+                }
+                
+                updateLearningProgress();
+                renderTaskList();
+            }
+        }
+
+        // 显示打字指示器
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `
+                <span>Endless Navigator正在思考</span>
+                <div class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            `;
+            chatMessages.appendChild(typingDiv);
+            scrollToBottom();
+        }
+
+        // 移除打字指示器
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        // 滚动到底部
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // 绑定事件
+        function bindEvents() {
+            // 发送消息
+            sendButton.addEventListener('click', () => {
+                const text = messageInput.value.trim();
+                if (text) {
+                    sendQuickReply(text);
+                    messageInput.value = '';
+                }
+            });
+            
+            // 回车发送
+            messageInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const text = messageInput.value.trim();
+                    if (text) {
+                        sendQuickReply(text);
+                        messageInput.value = '';
+                    }
+                }
+            });
+            
+            // 重置演示
+            resetButton.addEventListener('click', () => {
+                demoData.userLevel = 1;
+                demoData.completedTasks = 0;
+                demoData.tasks.forEach(task => {
+                    task.completed = task.id <= 2;
+                });
+                demoData.messages = [demoData.messages[0]];
+                
+                initDemo();
+            });
+            
+            // 自动演示
+            autoDemoButton.addEventListener('click', async () => {
+                autoDemoButton.disabled = true;
+                autoDemoButton.textContent = '演示中...';
+                
+                const demoQuestions = [
+                    'Endless是做什么的？',
+                    '如何将ETH跨链到Endless？',
+                    '教我使用Endless钱包',
+                    '我想参与社区治理'
+                ];
+                
+                for (let i = 0; i < demoQuestions.length; i++) {
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    sendQuickReply(demoQuestions[i]);
+                    
+                    // 如果是最后一个问题，等待更长时间
+                    if (i === demoQuestions.length - 1) {
+                        await new Promise(resolve => setTimeout(resolve, 3000));
+                    }
+                }
+                
+                autoDemoButton.disabled = false;
+                autoDemoButton.textContent = '自动演示';
+            });
+            
+            // 生态应用点击
+            document.querySelectorAll('.ecosystem-app').forEach(app => {
+                app.addEventListener('click', () => {
+                    const appName = app.getAttribute('data-app');
+                    sendQuickReply(`我想了解如何使用${appName}`);
+                });
+            });
+        }
+
+        // 启动演示
+        document.addEventListener('DOMContentLoaded', initDemo);
+    </script>
+</body>
+</html>
